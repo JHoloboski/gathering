@@ -1,13 +1,31 @@
+"""
+Reads in a simple mtgo deck file, which is just a txt file delimited by
+newlines
+"""
+
+
 class DeckReader(object):
     def __init__(self, deck_file):
         self.deck_file = deck_file
 
+    def __repr__(self):
+        return "{0}, {1}".format(
+            self.__class__.__name__,
+            self.deck_file
+        )
+
     def make_deck(self):
-        try:
-            deck = open(self.deck_file, 'r')
+        """
+        Extracts the information from the deck file into a deck dictionary
+        with two primary elements, "main" which is for the main deck, and
+        "side" for the sideboard. We're keeping track of each individual
+        card name and count.
+        """
+        with open(self.deck_file, 'r') as deck:
             in_sideboard = False
-            self.main_deck = {}
-            self.sideboard = {}
+            self.deck = {}
+            self.deck["main"] = {}
+            self.deck["side"] = {}
 
             for cards in deck:
                 if cards.lower().strip() == "sideboard":
@@ -18,12 +36,6 @@ class DeckReader(object):
                 card_name = card_name.strip()
 
                 if in_sideboard:
-                    self.sideboard[card_name] = count
+                    self.deck["side"][card_name] = count
                 else:
-                    self.main_deck[card_name] = count
-
-        except IOError:
-            print "File {0} not found".format(self.deck_file)
-
-        finally:
-            deck.close()
+                    self.deck["main"][card_name] = count
