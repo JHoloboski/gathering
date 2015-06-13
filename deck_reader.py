@@ -2,6 +2,7 @@
 Reads in a simple mtgo deck file, which is just a txt file delimited by
 newlines
 """
+from deck import Deck
 
 
 class DeckReader(object):
@@ -21,13 +22,13 @@ class DeckReader(object):
         "side" for the sideboard. We're keeping track of each individual
         card name and count.
         """
-        with open(self.deck_file, 'r') as deck:
+        with open(self.deck_file, 'r') as deck_file:
             in_sideboard = False
-            self.deck = {}
-            self.deck["main"] = {}
-            self.deck["side"] = {}
+            deck = {}
+            deck["main"] = {}
+            deck["side"] = {}
 
-            for cards in deck:
+            for cards in deck_file:
                 if cards.lower().strip() == "sideboard":
                     in_sideboard = True
                     continue
@@ -36,6 +37,8 @@ class DeckReader(object):
                 card_name = card_name.strip()
 
                 if in_sideboard:
-                    self.deck["side"][card_name] = count
+                    deck["side"][card_name] = count
                 else:
-                    self.deck["main"][card_name] = count
+                    deck["main"][card_name] = count
+
+        return Deck(deck["main"], deck["side"])
