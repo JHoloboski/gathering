@@ -2,14 +2,14 @@ import re
 from scrapy.contrib.spiders import CrawlSpider, Rule
 from scrapy.contrib.linkextractors import LinkExtractor
 
-from deckretriever.items import DeckItem
+from deckgatherer.items import DeckItem
 from bs4 import BeautifulSoup
 
 
 class DeckSpider(CrawlSpider):
     name = 'deck_spider'
     start_urls = [
-        'www.mtgdecks.net/events/viewByFormat/37/'
+        'http://www.mtgdecks.net/events/viewByFormat/37/'
     ]
 
     rules = [

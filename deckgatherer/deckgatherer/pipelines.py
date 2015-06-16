@@ -5,12 +5,7 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
-from scrapy.exceptions import DropItem
 
-
-class StandardPipeline(object):
+class DeckgathererPipeline(object):
     def process_item(self, item, spider):
-        if item['type'] == 'Standard':
-            return item
-        else:
-            raise DropItem('Not a standard item')
+        return item

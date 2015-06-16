@@ -4,19 +4,17 @@ from scrapy.contrib.spiders import CrawlSpider
 
 from bs4 import BeautifulSoup
 
-from deckretriever.items import EventItem
+from deckgatherer.items import EventItem
 
 
 class StandardSpider(Spider):
     name = 'standard_spider'
     allowed_domains = ['mtgdecks.net']
     start_urls = (
-        'http://www.mtgdecks.net/events/viewByFormat/37/',
+        'http://www.mtgdecks.net/formats/index/page:100',
     )
 
     def parse(self, response):
-        print response.body
-        return
         soup = BeautifulSoup(response.body)
         table = soup.select('table:first')
         if not table:
@@ -42,13 +40,3 @@ class StandardSpider(Spider):
                 _name = name
 
         return EventItem(id=max_id, name=_name, type=_type)
-
-
-class DeckSpider(CrawlSpider):
-    name = 'deck_spider'
-    allowed_domains = ['mtgdecks.net']
-    start_urls = (
-    )
-
-    def parse(self, response):
-        pass
