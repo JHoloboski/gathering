@@ -1,4 +1,3 @@
-import re
 from scrapy.contrib.spiders import CrawlSpider, Rule
 from scrapy.contrib.linkextractors import LinkExtractor
 
@@ -13,7 +12,7 @@ class DeckSpider(CrawlSpider):
     ]
 
     rules = [
-        Rule(LinkExtractor(allow=(r'decks/view/\d+', )), callback='parse_item'),
+        Rule(LinkExtractor(allow=(r'decks/view/\d+$', )), callback='parse_item'),
         Rule(LinkExtractor(allow=(r'events/view/\d+', ))),
         Rule(LinkExtractor(allow=(r'events/viewByFormat/37/page:\d+', ))),
     ]
@@ -23,13 +22,22 @@ class DeckSpider(CrawlSpider):
         deck = DeckItem()
         soup = BeautifulSoup(response.body)
 
-        rank_list = soup.find_all(
-            'div',
-            class_='col-md-12 sidebar'
-        )[0].find_all('li')[0]
+        try:
+            deck['name'] = soup.find_all(
+                'div',
+                class_='deckInfo col-md-8'
+            )[0].find_all('strong')[0].contents[0].string.split('.')[0]
 
-        for item in rank_list:
-            item_string = item.contents[0].strong.string
-            if 'place' in item_string.lower():
-                # get place
-                deck['rank'] = item_string[6:]
+        except IndexError:
+            print 'Deck name not found'
+            deck['name'] = ''
+
+        try:
+            deck['rank'] = soup.find_all(
+                'div',
+                class_='col-md-12 sidebar'
+            )[0].find_all('li')[1].contents[1].string.strip()
+
+        except IndexError:
+            print 'Deck rank not found'
+            deck['rank'] = '0'
