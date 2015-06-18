@@ -16,3 +16,6 @@ NEWSPIDER_MODULE = 'deckgatherer.spiders'
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 # USER_AGENT = 'deckgatherer (+http://www.yourdomain.com)'
 DOWNLOAD_DELAY = 0.5
+ITEM_PIPELINES = {
+    'deckgatherer.pipelines.DeckgathererPipeline': 0
+}
