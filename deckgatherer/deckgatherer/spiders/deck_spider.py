@@ -14,8 +14,8 @@ class DeckSpider(CrawlSpider):
 
     rules = [
         Rule(LinkExtractor(allow=(r"decks/view/\d+$", )), callback="parse_item"),
-        Rule(LinkExtractor(allow=(r"events/view/\d+", ))),
-        Rule(LinkExtractor(allow=(r"events/viewByFormat/37/page:\d+", ))),
+        Rule(LinkExtractor(allow=(r"events/view/\d+$", ))),
+        Rule(LinkExtractor(allow=(r"events/viewByFormat/37/page:\d+$", ))),
     ]
 
     def parse_item(self, response):
