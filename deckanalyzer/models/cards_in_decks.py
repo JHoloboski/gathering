@@ -9,18 +9,26 @@ class CardsInDecks(object):
 
     deck_id = sqlalchemy.Column(
         sqlalchemy.Integer(),
-        sqlalchemy.ForeignKey("deck.id"),
+        sqlalchemy.ForeignKey(
+            "deck.id",
+            onupdate="CASCADE",
+            ondelete="SET NULL"
+        ),
         nullable=False,
         primary_key=True,
 
     )
     card_id = sqlalchemy.Column(
         sqlalchemy.Integer(),
-        sqlalchemy.ForeignKey("card.id"),
+        sqlalchemy.ForeignKey(
+            "card.id",
+            onupdate="CASCADE",
+            ondelete="SET NULL"
+        ),
         nullable=False,
         primary_key=True
     )
-    count = sqlalchemy.Column(
+    quantity = sqlalchemy.Column(
         sqlalchemy.SmallInteger(),
         nullable=False
     )
