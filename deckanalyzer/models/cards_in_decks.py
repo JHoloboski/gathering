@@ -28,9 +28,13 @@ class CardsInDecks(object):
         nullable=False,
         primary_key=True
     )
-    quantity = sqlalchemy.Column(
+    main_quantity = sqlalchemy.Column(
         sqlalchemy.SmallInteger(),
-        nullable=False
+        default=0
+    )
+    side_quantity = sqlalchemy.Column(
+        sqlalchemy.SmallInteger(),
+        default=0
     )
 
     __table_args__ = (
