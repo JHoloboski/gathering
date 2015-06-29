@@ -30,7 +30,7 @@ class Card(models.Base):
         sqlalchemy.SmallInteger(),
         nullable=False
     )
-    # won't be sideboard inclusive
+    # the following won't be sideboard inclusive
     lands = sqlalchemy.Column(
         sqlalchemy.SmallInteger(),
         default=0

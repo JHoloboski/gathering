@@ -4,12 +4,16 @@ newlines
 """
 import requests
 import deckanalyzer.models as models
-from deckanalyzer.models import card
+from deckanalyzer.models import card, cards_in_decks, deck
+
+from collections import namedtuple
+
+FullDeck = namedtuple("FullDeck", ["main_deck", "sideboard"])
 
 
 class DeckReader(object):
-    def __init__(self, deck):
-        self.deck = deck
+    def __init__(self, deck_info):
+        self.deck_info = deck_info  # an individual deck from the spider
 
     def __repr__(self):
         return "{0}, {1}".format(
@@ -17,20 +21,76 @@ class DeckReader(object):
             self.deck
         )
 
-    @staticmethod
-    def get_or_add_card(card_name):
+    def add_deck(self):
+        """
+        Add deck to the database
+        """
+        new_deck = deck.Deck(
+            name=self.deck_info["name"],
+            format_id=1,  # will eventually need to be grabbed from db
+            rank=self.deck_info["rank"]
+        )
+        with models.session() as session:
+            session.add(new_deck)
+            session.flush()
+
+            return new_deck.id
+
+    def add_deck_contents(self):
+        """
+        Read in the deck's information and create the card, deck, and
+        relationship records in the database
+        """
+        full_deck = _create_deck(self.deck_info["raw_deck"])
+        deck_id = add_deck()
+
+        with models.session() as session:
+            # Adding the cards from the main deck
+            for mtg_card in full_deck.main_deck.keys():
+                main_count = full_deck.main_deck[mtg_card]
+                side_count = 0
+
+                if mtg_card in full_deck.sideboard:
+                    side_count = full_deck.sideboard[mtg_card]
+                    full_deck.sideboard.pop(mtg_card)
+
+                card_id = self.get_or_add_card(mtg_card)
+
+                new_cid = cards_in_decks.CardsInDecks(
+                    deck_id,
+                    card_id,
+                    main_count,
+                    side_count
+                )
+                session.add(new_cid)
+
+            for mtg_card in full_deck.sideboard.keys():
+                main_count = 0
+                side_count = full_deck.sideboard[mtg_card]
+
+                card_id = self.get_or_add_card(mtg_card)
+
+                new_cid = cards_in_decks.CardsInDecks(
+                    deck_id,
+                    card_id,
+                    main_count,
+                    side_count
+                )
+                session.add(new_cid)
+
+    def get_or_add_card(self, card_name):
         """
         Add card to the database if it's not already there
         """
         with models.session() as session:
-            cards = session.query(
+            dupe_card = session.query(
                 card.Card.id
             ).filter(
                 card.Card.name == card_name
-            ).count()
+            ).first()
 
-            if cards > 0:
-                return
+            if dupe_card is not None:
+                return dupe_card.id
 
             data = {"name": card_name}
             req = requests.get("http://api.mtgapi.com/v2/cards", params=data)
@@ -48,3 +108,28 @@ class DeckReader(object):
             )
 
             session.add(new_card)
+            session.flush()
+
+            return new_card.id
+
+    @staticmethod
+    def _create_deck(deck_contents):
+        """
+        Split the raw contents of a deck into the main and sideboard
+        """
+        deck_contents = deck_contents.split("\n")
+        full_deck = FullDeck({}, {})
+
+        in_sideboard = False
+        for line in deck_contents:
+            if line.lower().strip() == "sideboard":
+                in_sideboard = True
+                continue
+
+            count, card_name = line.split(" ", 1)
+            if in_sideboard:
+                full_deck.sideboard[card_name] = int(count)
+            else:
+                full_deck.main_deck[card_name] = int(count)
+
+        return full_deck
