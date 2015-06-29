@@ -27,9 +27,9 @@ class DeckReader(object):
                 card.Card.id
             ).filter(
                 card.Card.name == card_name
-            ).first()
+            ).count()
 
-            if cards.count() > 0:
+            if cards > 0:
                 return
 
             data = {"name": card_name}
