@@ -1,7 +1,8 @@
 import sqlalchemy
+from deckanalyzer import models
 
 
-class Format(object):
+class Format(models.Base):
     """
     Format Model
     """

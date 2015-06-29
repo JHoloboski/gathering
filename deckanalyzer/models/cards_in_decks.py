@@ -1,7 +1,8 @@
 import sqlalchemy
+from deckanalyzer import models
 
 
-class CardsInDecks(object):
+class CardsInDecks(models.Base):
     """
     Card and Deck Relationship Model
     """

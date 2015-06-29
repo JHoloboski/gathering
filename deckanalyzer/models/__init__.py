@@ -1,7 +1,11 @@
 import sqlalchemy
 from sqlalchemy import orm
+from sqlalchemy.ext.declarative import declarative_base
 
 from contextlib import contextmanager
+
+
+Base = declarative_base()
 
 # grab from config or command line argument later
 engine = sqlalchemy.create_engine("mysql://root:@localhost/gathering")
