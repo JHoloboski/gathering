@@ -41,8 +41,8 @@ class DeckReader(object):
         Read in the deck's information and create the card, deck, and
         relationship records in the database
         """
-        full_deck = _create_deck(self.deck_info["raw_deck"])
-        deck_id = add_deck()
+        full_deck = self._create_deck(self.deck_info["raw_deck"])
+        deck_id = self.add_deck()
 
         with models.session() as session:
             # Adding the cards from the main deck
