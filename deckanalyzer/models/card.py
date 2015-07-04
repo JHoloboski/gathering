@@ -43,6 +43,34 @@ class Card(models.Base):
         sqlalchemy.SmallInteger(),
         nullable=True
     )
+    is_artifact = sqlalchemy.Column(
+        sqlalchemy.Boolean(),
+        default=False
+    )
+    is_creature = sqlalchemy.Column(
+        sqlalchemy.Boolean(),
+        default=False
+    )
+    is_enchantment = sqlalchemy.Column(
+        sqlalchemy.Boolean(),
+        default=False
+    )
+    is_instant = sqlalchemy.Column(
+        sqlalchemy.Boolean(),
+        default=False
+    )
+    is_land = sqlalchemy.Column(
+        sqlalchemy.Boolean(),
+        default=False
+    )
+    is_planeswalker = sqlalchemy.Column(
+        sqlalchemy.Boolean(),
+        default=False
+    )
+    is_sorcery = sqlalchemy.Column(
+        sqlalchemy.Boolean(),
+        default=False
+    )
 
     __table_args__ = (
         sqlalchemy.Index(

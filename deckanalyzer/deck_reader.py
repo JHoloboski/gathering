@@ -132,11 +132,12 @@ class DeckReader(object):
                 name=card_name,
                 mana_cost=card_info["manaCost"],
                 cmc=int(card_info["cmc"]),
-                types=card_info["types"],
                 text=card_info["text"],
                 power=int(card_info["power"]),
                 toughness=int(card_info["toughness"])
             )
+
+            self._set_card_types(new_card, card_info["types"])
 
             session.add(new_card)
             session.flush()
@@ -164,3 +165,22 @@ class DeckReader(object):
                 full_deck.main_deck[card_name] = int(count)
 
         return full_deck
+
+    @staticmethod
+    def _set_card_types(new_card, types):
+        types = [t.lower() for t in types]
+
+        if "artifact" in types:
+            new_card.is_artifact = True
+        if "creature" in types:
+            new_card.is_creature = True
+        if "enchantment" in types:
+            new_card.is_enchantment = True
+        if "instant" in types:
+            new_card.is_instant = True
+        if "land" in types:
+            new_card.is_land = True
+        if "planeswalker" in types:
+            new_card.is_planeswalker = True
+        if "sorcery" in types:
+            new_card.is_sorcery = True
