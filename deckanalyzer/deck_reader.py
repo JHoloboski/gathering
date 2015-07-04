@@ -6,8 +6,10 @@ import requests
 import deckanalyzer.models as models
 from deckanalyzer.models import card, cards_in_decks, deck
 
+import re
 from collections import namedtuple
 from sqlalchemy.sql import func
+
 
 FullDeck = namedtuple("FullDeck", ["main_deck", "sideboard"])
 
@@ -26,11 +28,14 @@ class DeckReader(object):
         """
         Add deck to the database
         """
+        rank = int(re.sub("\D", "", self.deck_info["rank"]))
+
         new_deck = deck.Deck(
             name=self.deck_info["name"],
             format_id=1,  # will eventually need to be grabbed from db
-            rank=self.deck_info["rank"]
+            rank=rank
         )
+
         with models.session() as session:
             session.add(new_deck)
             session.flush()
