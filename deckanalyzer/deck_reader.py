@@ -7,6 +7,7 @@ import deckanalyzer.models as models
 from deckanalyzer.models import card, cards_in_decks, deck
 
 from collections import namedtuple
+from sqlalchemy.sql import func
 
 FullDeck = namedtuple("FullDeck", ["main_deck", "sideboard"])
 
@@ -77,6 +78,31 @@ class DeckReader(object):
                     side_count
                 )
                 session.add(new_cid)
+
+    def calculate_avg_cmc(self, deck_id):
+        """
+        Calculate the average converted mana cost of a deck.
+        """
+        with models.session() as session:
+            query = session.query(
+                func.avg(card.Card.cmc)
+            ).join(
+                cards_in_decks.CardsInDecks,
+                card.Card.id == cards_in_decks.CardsInDecks.card_id
+            ).filter(
+                cards_in_decks.CardsInDecks.deck_id == deck_id
+            )
+
+            avg_cmc = query.one()[0]
+
+            # TODO: Move the update for all calculated metrics into one place
+            session.query(deck.Deck).filter(
+                deck.Deck.id == deck_id
+            ).update({
+                deck.Deck.avg_cmc: avg_cmc
+            })
+
+            session.commit()
 
     def get_or_add_card(self, card_name):
         """

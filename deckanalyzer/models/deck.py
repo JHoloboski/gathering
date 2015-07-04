@@ -2,7 +2,7 @@ import sqlalchemy
 from deckanalyzer import models
 
 
-class Card(models.Base):
+class Deck(models.Base):
     """
     Deck Model
     """
