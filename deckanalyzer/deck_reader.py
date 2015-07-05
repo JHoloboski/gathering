@@ -90,24 +90,39 @@ class DeckReader(object):
         """
         with models.session() as session:
             query = session.query(
-                func.avg(card.Card.cmc)
+                func.avg(
+                    card.Card.cmc * cards_in_decks.CardsInDecks.main_quantity
+                )
             ).join(
                 cards_in_decks.CardsInDecks,
                 card.Card.id == cards_in_decks.CardsInDecks.card_id
             ).filter(
-                cards_in_decks.CardsInDecks.deck_id == deck_id
+                cards_in_decks.CardsInDecks.deck_id == deck_id,
+                card.Card.is_land == 0
             )
 
             avg_cmc = query.one()[0]
 
-            # TODO: Move the update for all calculated metrics into one place
-            session.query(deck.Deck).filter(
-                deck.Deck.id == deck_id
-            ).update({
-                deck.Deck.avg_cmc: avg_cmc
-            })
+            return avg_cmc
 
-            session.commit()
+    def calculate_lands(self, deck_id, is_land):
+        """
+        Count the number of land cards in a deck
+        """
+        with models.session() as session:
+            query = session.query(
+                func.sum(cards_in_decks.CardsInDecks.main_quantity)
+            ).join(
+                cards_in_decks.CardsInDecks,
+                card.Card.id == cards_in_decks.CardsInDecks.card_id
+            ).filter(
+                cards_in_decks.CardsInDecks.deck_id == deck_id,
+                card.Card.is_land == is_land
+            )
+
+            card_count = query.one()[0]
+
+            return card_count
 
     def get_or_add_card(self, card_name):
         """
@@ -144,6 +159,25 @@ class DeckReader(object):
 
             return new_card.id
 
+    def perform_calculations(self, deck_id):
+        """
+        Perform calculations on the deck's contents and then update the deck
+        """
+        avg_cmc = self.calculate_avg_cmc(deck_id)
+        lands = self.calculate_lands(deck_id, True)
+        non_lands = self.calculate_lands(deck_id, False)
+
+        with models.session() as session:
+            session.query(deck.Deck).filter(
+                deck.Deck.id == deck_id
+            ).update({
+                deck.Deck.avg_cmc: avg_cmc,
+                deck.Deck.lands: lands,
+                deck.Deck.non_lands: non_lands
+            })
+
+            session.commit()
+
     @staticmethod
     def _create_deck(deck_contents):
         """
@@ -168,6 +202,9 @@ class DeckReader(object):
 
     @staticmethod
     def _set_card_types(new_card, types):
+        """
+        Set types on the card based on the list mtgapi returns for it
+        """
         types = [t.lower() for t in types]
 
         if "artifact" in types:
