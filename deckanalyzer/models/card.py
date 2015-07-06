@@ -26,10 +26,6 @@ class Card(models.Base):
         sqlalchemy.SmallInteger(),
         nullable=True
     )
-    types = sqlalchemy.Column(
-        sqlalchemy.String(128),
-        nullable=False
-    )
     text = sqlalchemy.Column(
         sqlalchemy.String(512),
         nullable=False
