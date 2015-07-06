@@ -15,40 +15,34 @@ FullDeck = namedtuple("FullDeck", ["main_deck", "sideboard"])
 
 
 class DeckReader(object):
-    def __init__(self, deck_info):
-        self.deck_info = deck_info  # an individual deck from the spider
-
-    def __repr__(self):
-        return "{0}, {1}".format(
-            self.__class__.__name__,
-            self.deck
-        )
-
-    def add_deck(self):
+    """
+    Reads in an individual deck and performs all necessary additions
+    and updates for the deck into the database
+    """
+    def add_deck(self, deck_info):
         """
         Add deck to the database
         """
-        rank = int(re.sub("\D", "", self.deck_info["rank"]))
+        rank = int(re.sub("\D", "", deck_info["rank"]))
 
         new_deck = deck.Deck(
-            name=self.deck_info["name"],
+            name=deck_info["name"],
             format_id=1,  # will eventually need to be grabbed from db
             rank=rank
         )
 
         with models.session() as session:
             session.add(new_deck)
-            session.flush()
 
             return new_deck.id
 
-    def add_deck_contents(self):
+    def add_deck_contents(self, deck_info):
         """
         Read in the deck's information and create the card, deck, and
         relationship records in the database
         """
-        full_deck = self._create_deck(self.deck_info["raw_deck"])
-        deck_id = self.add_deck()
+        full_deck = self._create_deck(deck_info["raw_deck"])
+        deck_id = self.add_deck(deck_info)
 
         with models.session() as session:
             # Adding the cards from the main deck
@@ -83,6 +77,8 @@ class DeckReader(object):
                     side_count
                 )
                 session.add(new_cid)
+
+        return deck_id
 
     def calculate_avg_cmc(self, deck_id):
         """
@@ -177,6 +173,14 @@ class DeckReader(object):
             })
 
             session.commit()
+
+    def read_deck(self, deck_info):
+        """
+        Main method to have deck reader perform all methods on information
+        passed in
+        """
+        deck_id = self.add_deck_contents(deck_info)
+        self.perform_calculations(deck_id)
 
     @staticmethod
     def _create_deck(deck_contents):
