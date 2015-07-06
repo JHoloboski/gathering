@@ -10,7 +10,6 @@ class Deck(models.Base):
 
     id = sqlalchemy.Column(
         sqlalchemy.Integer(),
-        nullable=False,
         autoincrement=True,
         primary_key=True
     )

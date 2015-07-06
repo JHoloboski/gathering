@@ -10,7 +10,6 @@ class Card(models.Base):
 
     id = sqlalchemy.Column(
         sqlalchemy.Integer(),
-        nullable=False,
         autoincrement=True,
         primary_key=True
     )

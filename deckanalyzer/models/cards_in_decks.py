@@ -8,16 +8,18 @@ class CardsInDecks(models.Base):
     """
     __tablename__ = "cards_in_decks"
 
+    id = sqlalchemy.Column(
+        sqlalchemy.Integer(),
+        autoincrement=True,
+        primary_key=True
+    )
     deck_id = sqlalchemy.Column(
         sqlalchemy.Integer(),
         sqlalchemy.ForeignKey(
             "deck.id",
             onupdate="CASCADE",
             ondelete="SET NULL"
-        ),
-        nullable=False,
-        primary_key=True,
-
+        )
     )
     card_id = sqlalchemy.Column(
         sqlalchemy.Integer(),
@@ -25,9 +27,7 @@ class CardsInDecks(models.Base):
             "card.id",
             onupdate="CASCADE",
             ondelete="SET NULL"
-        ),
-        nullable=False,
-        primary_key=True
+        )
     )
     main_quantity = sqlalchemy.Column(
         sqlalchemy.SmallInteger(),
