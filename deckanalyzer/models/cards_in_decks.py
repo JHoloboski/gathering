@@ -15,19 +15,11 @@ class CardsInDecks(models.Base):
     )
     deck_id = sqlalchemy.Column(
         sqlalchemy.Integer(),
-        sqlalchemy.ForeignKey(
-            "deck.id",
-            onupdate="CASCADE",
-            ondelete="SET NULL"
-        )
+        default=None
     )
     card_id = sqlalchemy.Column(
         sqlalchemy.Integer(),
-        sqlalchemy.ForeignKey(
-            "card.id",
-            onupdate="CASCADE",
-            ondelete="SET NULL"
-        )
+        default=None
     )
     main_quantity = sqlalchemy.Column(
         sqlalchemy.SmallInteger(),
@@ -39,5 +31,5 @@ class CardsInDecks(models.Base):
     )
 
     __table_args__ = (
-        {"mysql_charset": "utf8mb4"}
+        {"mysql_charset": "utf8mb4", "schema": "gathering"}
     )

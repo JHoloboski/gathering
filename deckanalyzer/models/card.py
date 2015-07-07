@@ -28,7 +28,7 @@ class Card(models.Base):
     )
     text = sqlalchemy.Column(
         sqlalchemy.String(512),
-        nullable=False
+        nullable=True
     )
     power = sqlalchemy.Column(
         sqlalchemy.SmallInteger(),
@@ -67,6 +67,15 @@ class Card(models.Base):
         default=False
     )
 
+    cards_in_decks = sqlalchemy.orm.relationship(
+        "CardsInDecks",
+        backref="card",
+        primaryjoin="CardsInDecks.card_id == Card.id",
+        foreign_keys="[CardsInDecks.card_id]",
+        passive_deletes="all",
+        uselist=False
+    )
+
     __table_args__ = (
         sqlalchemy.Index(
             "name_idx",
@@ -76,5 +85,5 @@ class Card(models.Base):
             "cmc_idx",
             cmc
         ),
-        {"mysql_charset": "utf8mb4"}
+        {"mysql_charset": "utf8mb4", "schema": "gathering"}
     )

@@ -18,12 +18,7 @@ class Deck(models.Base):
         default=None
     )
     format_id = sqlalchemy.Column(
-        sqlalchemy.Integer(),
-        sqlalchemy.ForeignKey(
-            "format.id",
-            onupdate="CASCADE",
-            ondelete="SET NULL"
-        )
+        sqlalchemy.Integer()
     )
     rank = sqlalchemy.Column(
         sqlalchemy.SmallInteger(),
@@ -43,6 +38,15 @@ class Deck(models.Base):
         default=0.0
     )
 
+    cards_in_decks = sqlalchemy.orm.relationship(
+        "CardsInDecks",
+        backref="deck",
+        primaryjoin="CardsInDecks.deck_id == Deck.id",
+        foreign_keys="[CardsInDecks.deck_id]",
+        passive_deletes="all",
+        uselist=False
+    )
+
     __table_args__ = (
         sqlalchemy.Index(
             "rank_idx",
@@ -52,5 +56,5 @@ class Deck(models.Base):
             "avg_cmc_idx",
             avg_cmc
         ),
-        {"mysql_charset": "utf8mb4"}
+        {"mysql_charset": "utf8mb4", "schema": "gathering"}
     )

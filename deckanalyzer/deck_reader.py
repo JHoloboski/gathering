@@ -7,6 +7,7 @@ import deckanalyzer.models as models
 from deckanalyzer.models import card, cards_in_decks, deck
 
 import re
+import sys
 from collections import namedtuple
 from sqlalchemy.sql import func
 
@@ -33,6 +34,7 @@ class DeckReader(object):
 
         with models.session() as session:
             session.add(new_deck)
+            session.flush()
 
             return new_deck.id
 
@@ -57,10 +59,10 @@ class DeckReader(object):
                 card_id = self.get_or_add_card(mtg_card)
 
                 new_cid = cards_in_decks.CardsInDecks(
-                    deck_id,
-                    card_id,
-                    main_count,
-                    side_count
+                    deck_id=deck_id,
+                    card_id=card_id,
+                    main_quantity=main_count,
+                    side_quantity=side_count
                 )
                 session.add(new_cid)
 
@@ -71,10 +73,10 @@ class DeckReader(object):
                 card_id = self.get_or_add_card(mtg_card)
 
                 new_cid = cards_in_decks.CardsInDecks(
-                    deck_id,
-                    card_id,
-                    main_count,
-                    side_count
+                    deck_id=deck_id,
+                    card_id=card_id,
+                    main_quantity=main_count,
+                    side_quantity=side_count
                 )
                 session.add(new_cid)
 
@@ -109,7 +111,7 @@ class DeckReader(object):
             query = session.query(
                 func.sum(cards_in_decks.CardsInDecks.main_quantity)
             ).join(
-                cards_in_decks.CardsInDecks,
+                card.Card,
                 card.Card.id == cards_in_decks.CardsInDecks.card_id
             ).filter(
                 cards_in_decks.CardsInDecks.deck_id == deck_id,
@@ -137,15 +139,27 @@ class DeckReader(object):
             data = {"name": card_name}
             req = requests.get("http://api.mtgapi.com/v2/cards", params=data)
             card_info = req.json()
-            card_info = card_info["cards"][0]
+            try:
+                card_info = card_info["cards"][0]
+            except TypeError:
+                print "TypeError caught, card info was: {0}".format(card_info)
+                sys.exit(-1)
+
+            power = toughness = None
+
+            if card_info["power"] is not None:
+                power = int(card_info["power"])
+
+            if card_info["toughness"] is not None:
+                toughness = int(card_info["toughness"])
 
             new_card = card.Card(
                 name=card_name,
                 mana_cost=card_info["manaCost"],
                 cmc=int(card_info["cmc"]),
                 text=card_info["text"],
-                power=int(card_info["power"]),
-                toughness=int(card_info["toughness"])
+                power=power,
+                toughness=toughness
             )
 
             self._set_card_types(new_card, card_info["types"])
@@ -194,6 +208,8 @@ class DeckReader(object):
         for line in deck_contents:
             if line.lower().strip() == "sideboard":
                 in_sideboard = True
+                continue
+            if line == "":
                 continue
 
             count, card_name = line.split(" ", 1)
