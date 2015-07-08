@@ -213,6 +213,8 @@ class DeckReader(object):
                 continue
 
             count, card_name = line.split(" ", 1)
+            if "aether" in card_name.lower():
+                card_name = card_name.replace("aether", "æther")
             if in_sideboard:
                 full_deck.sideboard[card_name] = int(count)
             else:
