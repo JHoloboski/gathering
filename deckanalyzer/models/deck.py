@@ -1,5 +1,6 @@
 import sqlalchemy
 from deckanalyzer import models
+from deckanalyzer.models import format
 
 
 class Deck(models.Base):
@@ -18,7 +19,12 @@ class Deck(models.Base):
         default=None
     )
     format_id = sqlalchemy.Column(
-        sqlalchemy.Integer()
+        sqlalchemy.Integer(),
+        sqlalchemy.ForeignKey(
+            format.Format.id,
+            onupdate="CASCADE",
+            ondelete="SET NULL"
+        )
     )
     rank = sqlalchemy.Column(
         sqlalchemy.SmallInteger(),
@@ -36,15 +42,6 @@ class Deck(models.Base):
     avg_cmc = sqlalchemy.Column(
         sqlalchemy.Numeric(18, 9),
         default=0.0
-    )
-
-    cards_in_decks = sqlalchemy.orm.relationship(
-        "CardsInDecks",
-        backref="deck",
-        primaryjoin="CardsInDecks.deck_id == Deck.id",
-        foreign_keys="[CardsInDecks.deck_id]",
-        passive_deletes="all",
-        uselist=False
     )
 
     __table_args__ = (

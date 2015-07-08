@@ -67,15 +67,6 @@ class Card(models.Base):
         default=False
     )
 
-    cards_in_decks = sqlalchemy.orm.relationship(
-        "CardsInDecks",
-        backref="card",
-        primaryjoin="CardsInDecks.card_id == Card.id",
-        foreign_keys="[CardsInDecks.card_id]",
-        passive_deletes="all",
-        uselist=False
-    )
-
     __table_args__ = (
         sqlalchemy.Index(
             "name_idx",

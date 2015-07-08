@@ -1,5 +1,6 @@
 import sqlalchemy
 from deckanalyzer import models
+from deckanalyzer.models import card, deck
 
 
 class CardsInDecks(models.Base):
@@ -15,10 +16,20 @@ class CardsInDecks(models.Base):
     )
     deck_id = sqlalchemy.Column(
         sqlalchemy.Integer(),
+        sqlalchemy.ForeignKey(
+            deck.Deck.id,
+            onupdate="CASCADE",
+            ondelete="SET NULL"
+        ),
         default=None
     )
     card_id = sqlalchemy.Column(
         sqlalchemy.Integer(),
+        sqlalchemy.ForeignKey(
+            card.Card.id,
+            onupdate="CASCADE",
+            ondelete="SET NULL"
+        ),
         default=None
     )
     main_quantity = sqlalchemy.Column(
