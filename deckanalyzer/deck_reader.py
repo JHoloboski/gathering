@@ -1,3 +1,4 @@
+# -*- coding: utf8 -*-
 """
 Reads in a simple mtgo deck file, which is just a txt file delimited by
 newlines
@@ -213,8 +214,8 @@ class DeckReader(object):
                 continue
 
             count, card_name = line.split(" ", 1)
-            if "aether" in card_name.lower():
-                card_name = card_name.replace("aether", "æther")
+            if "Aether" in card_name:
+                card_name = card_name.replace("Aether", "Æther")
             if in_sideboard:
                 full_deck.sideboard[card_name] = int(count)
             else:
