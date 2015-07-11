@@ -39,6 +39,9 @@ class DeckSpider(CrawlSpider):
                 class_="col-md-12 sidebar"
             )[0].find_all('li')[1].contents[1].string.strip()
 
+            if deck["rank"].lower() == "other":
+                return
+
         except IndexError:
             print "Deck rank not found"
             deck["rank"] = "0"
@@ -50,6 +53,9 @@ class DeckSpider(CrawlSpider):
             )[0].find_all("a")[1]["href"]
 
             req = requests.get("http://mtgdecks.net" + raw_deck_url)
+            if req.text is None:
+                return
+
             deck["raw_deck"] = req.text
 
         except Exception:
