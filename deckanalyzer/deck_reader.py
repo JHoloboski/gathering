@@ -148,21 +148,13 @@ class DeckReader(object):
                 print "TypeError caught, card info was: {0}".format(card_info)
                 sys.exit(-1)
 
-            power = toughness = None
-
-            if card_info["power"] is not None:
-                power = int(card_info["power"])
-
-            if card_info["toughness"] is not None:
-                toughness = int(card_info["toughness"])
-
             new_card = card.Card(
                 name=card_name,
                 mana_cost=card_info["manaCost"],
                 cmc=int(card_info["cmc"]),
                 text=card_info["text"],
-                power=power,
-                toughness=toughness
+                power=card_info["power"],
+                toughness=card_info["toughness"]
             )
 
             self._set_card_types(new_card, card_info["types"])

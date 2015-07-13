@@ -31,11 +31,11 @@ class Card(models.Base):
         nullable=True
     )
     power = sqlalchemy.Column(
-        sqlalchemy.SmallInteger(),
+        sqlalchemy.String(3),
         nullable=True
     )
     toughness = sqlalchemy.Column(
-        sqlalchemy.SmallInteger(),
+        sqlalchemy.String(3),
         nullable=True
     )
     is_artifact = sqlalchemy.Column(
