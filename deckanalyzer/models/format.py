@@ -32,15 +32,6 @@ class Format(models.Base):
         default=0
     )
 
-    deck = sqlalchemy.orm.relationship(
-        "Deck",
-        backref="format",
-        primaryjoin="Deck.format_id == Format.id",
-        foreign_keys="[Deck.format_id]",
-        passive_deletes="all",
-        uselist=False
-    )
-
     __table_args__ = (
         {"mysql_charset": "utf8mb4", "schema": "gathering"}
     )
