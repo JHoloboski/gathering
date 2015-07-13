@@ -89,14 +89,16 @@ class DeckReader(object):
         """
         with models.session() as session:
             query = session.query(
-                func.avg(
-                    card.Card.cmc * cards_in_decks.CardsInDecks.main_quantity
+                (
+                    func.sum(card.Card.cmc * cards_in_decks.CardsInDecks.main_quantity) /
+                    func.sum(cards_in_decks.CardsInDecks.main_quantity)
                 )
             ).join(
-                cards_in_decks.CardsInDecks,
+                card.Card,
                 card.Card.id == cards_in_decks.CardsInDecks.card_id
             ).filter(
                 cards_in_decks.CardsInDecks.deck_id == deck_id,
+                cards_in_decks.CardsInDecks.main_quantity > 0,
                 card.Card.is_land == 0
             )
 
