@@ -1,6 +1,6 @@
 import sqlalchemy
 from deckanalyzer import models
-from deckanalyzer.models import format
+from deckanalyzer.models import event
 
 
 class Deck(models.Base):
@@ -18,10 +18,10 @@ class Deck(models.Base):
         sqlalchemy.String(128),
         default=None
     )
-    format_id = sqlalchemy.Column(
+    event_id = sqlalchemy.Column(
         sqlalchemy.Integer(),
         sqlalchemy.ForeignKey(
-            format.Format.id,
+            event.Event.id,
             onupdate="CASCADE",
             ondelete="SET NULL"
         )
