@@ -15,7 +15,7 @@ class DeckSpider(CrawlSpider):
     rules = [
         Rule(LinkExtractor(allow=(r"decks/view/\d+$", )), callback="parse_item"),
         Rule(LinkExtractor(allow=(r"events/view/\d+$", ))),
-        Rule(LinkExtractor(allow=(r"events/viewByFormat/37/page:\d+$", ))),
+        Rule(LinkExtractor(allow=(r"events/viewByFormat/39/page:\d+$", ))),
     ]
 
     def parse_item(self, response):
@@ -45,6 +45,28 @@ class DeckSpider(CrawlSpider):
         except IndexError:
             print "Deck rank not found"
             deck["rank"] = "0"
+
+        try:
+            deck["event_name"] = soup.find_all(
+                "div",
+                class_="col-md-12 sidebar"
+            )[0].find_all('li')[0].contents[1].string.strip()
+
+            deck["event_participants"] = soup.find_all(
+                "div",
+                class_="col-md-12 sidebar"
+            )[0].find_all('li')[2].contents[1].string.strip()
+
+            if not deck["event_participants"].isdigit():
+                deck["event_participants"] = "36"  # assumption, but standard event size
+
+            deck["event_date"] = soup.find_all(
+                "div",
+                class_="col-md-12 sidebar"
+            )[0].find_all('li')[4].contents[1].string.strip()
+
+        except IndexError:
+            print "Deck event information not found"
 
         try:
             raw_deck_url = soup.find_all(
