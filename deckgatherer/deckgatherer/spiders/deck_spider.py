@@ -9,7 +9,7 @@ import requests
 class DeckSpider(CrawlSpider):
     name = "deck_spider"
     start_urls = [
-        "http://www.mtgdecks.net/events/viewByFormat/37/"
+        "http://www.mtgdecks.net/events/viewByFormat/39/"
     ]
 
     rules = [

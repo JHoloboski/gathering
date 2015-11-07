@@ -8,6 +8,12 @@
 import scrapy
 
 
+class EventItem(scrapy.Item):
+    id = scrapy.Field()
+    name = scrapy.Field()
+    type = scrapy.Field()
+
+
 class DeckItem(scrapy.Item):
     name = scrapy.Field()
     raw_deck = scrapy.Field()  # contents of the deck in a file
@@ -15,11 +21,3 @@ class DeckItem(scrapy.Item):
     event_name = scrapy.Field()
     event_participants = scrapy.Field()
     event_date = scrapy.Field()
-
-
-class TournamentItem(scrapy.Item):
-    # Would be nice to store this information, decks can relate
-    # back to individual tournaments
-    date = scrapy.Field()
-    format = scrapy.Field()  # which format of standard
-    players = scrapy.Field()  # number of players
