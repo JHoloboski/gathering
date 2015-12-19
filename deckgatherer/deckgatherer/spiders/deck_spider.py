@@ -50,7 +50,7 @@ class DeckSpider(CrawlSpider):
             deck["event_name"] = soup.find_all(
                 "div",
                 class_="col-md-12 sidebar"
-            )[0].find_all('li')[0].contents[1].string.strip()
+            )[0].find_all('li')[0].contents[0].string.strip()
 
             deck["event_participants"] = soup.find_all(
                 "div",
