@@ -131,6 +131,26 @@ class DeckReader(object):
 
             return card_count
 
+    def calculate_weighted_rank_value(self, deck_id):
+        """
+        Determine the weighted rank value based on how the deck ranked in
+        relation to the number of players involved in the event the deck was
+        used in
+        """
+        with models.session() as session:
+            query = session.query(
+                event.Event.number_of_players / deck.Deck.rank
+            ).join(
+                event.Event,
+                event.Event.id == deck.Deck.event_id
+            ).filter(
+                deck.Deck.id == deck_id
+            )
+
+            weighted_rank_value = query.one()[0]
+
+            return weighted_rank_value
+
     def get_or_add_card(self, card_name):
         """
         Add card to the database if it's not already there
@@ -201,6 +221,7 @@ class DeckReader(object):
         """
         Perform calculations on the deck's contents and then update the deck
         """
+        weighted_rank_value = self.calculate_weighted_rank_value(deck_id)
         avg_cmc = self.calculate_avg_cmc(deck_id)
         lands = self.calculate_lands(deck_id, True)
         non_lands = self.calculate_lands(deck_id, False)
@@ -209,6 +230,7 @@ class DeckReader(object):
             session.query(deck.Deck).filter(
                 deck.Deck.id == deck_id
             ).update({
+                deck.Deck.weighted_rank_value: weighted_rank_value,
                 deck.Deck.avg_cmc: avg_cmc,
                 deck.Deck.lands: lands,
                 deck.Deck.non_lands: non_lands

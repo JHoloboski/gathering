@@ -30,6 +30,11 @@ class Deck(models.Base):
         sqlalchemy.SmallInteger(),
         nullable=False
     )
+    # WIP way of weighting ranks based on how many participants were
+    # in the event this deck was used in
+    weighted_rank_value = sqlalchemy.Column(
+        sqlalchemy.Numeric(18, 9)
+    )
     # the following won't be sideboard inclusive
     lands = sqlalchemy.Column(
         sqlalchemy.SmallInteger(),
@@ -48,6 +53,10 @@ class Deck(models.Base):
         sqlalchemy.Index(
             "rank_idx",
             rank
+        ),
+        sqlalchemy.Index(
+            "weighted_rank_idx",
+            weighted_rank_value
         ),
         sqlalchemy.Index(
             "avg_cmc_idx",
