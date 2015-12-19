@@ -5,7 +5,7 @@ newlines
 """
 import requests
 import deckanalyzer.models as models
-from deckanalyzer.models import card, cards_in_decks, deck
+from deckanalyzer.models import card, cards_in_decks, deck, event
 
 import re
 import sys
@@ -27,9 +27,15 @@ class DeckReader(object):
         """
         rank = int(re.sub("\D", "", deck_info["rank"]))
 
+        event_id = self.get_or_add_event(
+            deck_info["event_name"],
+            deck_info["event_date"],
+            deck_info["event_participants"]
+        )
+
         new_deck = deck.Deck(
             name=deck_info["name"],
-            format_id=1,  # will eventually need to be grabbed from db
+            event_id=event_id,
             rank=rank
         )
 
@@ -163,6 +169,33 @@ class DeckReader(object):
             session.flush()
 
             return new_card.id
+
+    def get_or_add_event(self, name, date, participants):
+        """
+        Add an event to the database, if it's not already there
+        """
+        with models.session as session:
+            dupe_event = session.query(
+                event.Event.id
+            ).filter(
+                event.Event.name == name,
+                event.Event.event_date == date
+            )
+
+            if dupe_event is not None:
+                return dupe_event.id
+
+            new_event = event.Event(
+                name=name,
+                event_date=date,
+                format_id=1,  # Will eventually need to be pulled from db
+                number_of_players=participants
+            )
+
+            session.add(new_event)
+            session.flush()
+
+            return new_event.id
 
     def perform_calculations(self, deck_id):
         """

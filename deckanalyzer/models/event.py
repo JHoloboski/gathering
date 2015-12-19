@@ -14,8 +14,11 @@ class Event(models.Base):
         autoincrement=True,
         primary_key=True
     )
-    event_datetime = sqlalchemy.Column(
-        sqlalchemy.DateTime(),
+    name = sqlalchemy.Column(
+        sqlalchemy.String()
+    )
+    event_date = sqlalchemy.Column(
+        sqlalchemy.Date(),
         default=None
     )
     format_id = sqlalchemy.Column(
@@ -33,8 +36,13 @@ class Event(models.Base):
 
     __table_args__ = (
         sqlalchemy.Index(
-            "event_datetime_idx",
-            event_datetime
+            "event_date_idx",
+            event_date
+        ),
+        sqlalchemy.UniqueConstraint(
+            name,
+            event_date,
+            name="name_event_date_uidx"
         ),
         {"mysql_charset": "utf8mb4", "schema": "gathering"}
     )
