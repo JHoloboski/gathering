@@ -94,7 +94,7 @@ class DeckReader(object):
         Calculate the average converted mana cost of a deck.
         """
         with models.session() as session:
-            query = session.query(
+            avg_cmc = session.query(
                 (
                     func.sum(card.Card.cmc * cards_in_decks.CardsInDecks.main_quantity) /
                     func.sum(cards_in_decks.CardsInDecks.main_quantity)
@@ -106,9 +106,7 @@ class DeckReader(object):
                 cards_in_decks.CardsInDecks.deck_id == deck_id,
                 cards_in_decks.CardsInDecks.main_quantity > 0,
                 card.Card.is_land == 0
-            )
-
-            avg_cmc = query.one()[0]
+            ).scalar()
 
             return avg_cmc
 
@@ -117,7 +115,7 @@ class DeckReader(object):
         Count the number of land cards in a deck
         """
         with models.session() as session:
-            query = session.query(
+            card_count = session.query(
                 func.sum(cards_in_decks.CardsInDecks.main_quantity)
             ).join(
                 card.Card,
@@ -125,9 +123,7 @@ class DeckReader(object):
             ).filter(
                 cards_in_decks.CardsInDecks.deck_id == deck_id,
                 card.Card.is_land == is_land
-            )
-
-            card_count = query.one()[0]
+            ).scalar()
 
             return card_count
 
@@ -138,16 +134,14 @@ class DeckReader(object):
         used in
         """
         with models.session() as session:
-            query = session.query(
+            weighted_rank_value = session.query(
                 event.Event.number_of_players / deck.Deck.rank
             ).join(
                 event.Event,
                 event.Event.id == deck.Deck.event_id
             ).filter(
                 deck.Deck.id == deck_id
-            )
-
-            weighted_rank_value = query.one()[0]
+            ).scalar()
 
             return weighted_rank_value
 
